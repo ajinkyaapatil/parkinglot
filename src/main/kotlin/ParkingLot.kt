@@ -1,5 +1,8 @@
 package org.example
 
+import org.example.org.example.ParkingReceipt
+import java.util.*
+
 class ParkingLot(motorCycleCount: Int, carCount: Int, busCount: Int) {
 
     val slots = mutableMapOf<VehicleType, MutableList<Slot>>(
@@ -15,8 +18,23 @@ class ParkingLot(motorCycleCount: Int, carCount: Int, busCount: Int) {
     }
 
 
-    fun findEmptySlotFor(vehicle: Vehicle) : Slot {
-        return Slot(1, vehicle.vehicleType)
+    fun findEmptySlotFor(vehicleType: VehicleType) : Slot? {
+        return slots[vehicleType]?.first { it.availability }
+    }
+
+    fun park(vehicle: Vehicle): ParkingTicket {
+        val availSlot = findEmptySlotFor(vehicle.vehicleType)
+        if (availSlot == null) throw Exception("No Empty Slot Found")
+        else{
+            availSlot.occupy()
+            return ParkingTicket(1, availSlot.id, Date().time, vehicle.vehicleType)
+        }
+    }
+
+    fun unpark(parkingTicket: ParkingTicket): ParkingReceipt {
+        val slot = slots[parkingTicket.vehicleType]?.find { it.id == parkingTicket.spotId }
+        slot?.free()
+        return ParkingReceipt("R-${parkingTicket.ticketNumber}", parkingTicket.entryDate, Date().time, 0)
     }
 
 }

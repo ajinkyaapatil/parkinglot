@@ -2,6 +2,7 @@ import org.example.ParkingLot
 import org.example.Vehicle
 import org.example.VehicleType
 import org.junit.jupiter.api.Test
+import org.opentest4j.ValueWrapper
 import kotlin.test.assertEquals
 
 class ParkingLotTest {
@@ -18,12 +19,22 @@ class ParkingLotTest {
     }
     @Test
     fun `Parking lot is able to give a empty slot for a vehicle`(){
+
+        val parkingLot = ParkingLot(1, 1, 1)
+
+        val slot = parkingLot.findEmptySlotFor(VehicleType.MOTORCYCLE)
+
+        assertEquals(VehicleType.MOTORCYCLE, slot?.vehicleType)
+    }
+    @Test
+    fun `vehicle is able to be parked and a slot is assigned to it`(){
         val vehicle = Vehicle(VehicleType.MOTORCYCLE)
 
         val parkingLot = ParkingLot(1, 1, 1)
 
-        val slot = parkingLot.findEmptySlotFor(vehicle)
+        val parkingTicket = parkingLot.park(vehicle)
 
-        assertEquals(VehicleType.MOTORCYCLE, slot.vehicleType)
+        assertEquals(1, parkingTicket.spotId)
+
     }
 }
