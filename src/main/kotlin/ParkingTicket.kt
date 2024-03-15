@@ -1,5 +1,10 @@
 package org.example
 
-class ParkingTicket(val ticketNumber: Int, val spotId: Int, val entryDate: Long, val vehicleType: VehicleType) {
+import java.util.*
 
+class ParkingTicket(
+    val ticketNumber: Int,
+    val spotId: Int,
+    val entryDate: Date,
+    val vehicleType: VehicleType) {
 }
