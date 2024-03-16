@@ -14,18 +14,18 @@ interface FeeModel {
     }
 }
 
-class StadiumFeeModel : FeeModel{
+
+class AirportFeeModel : FeeModel{
 
     private val motorCycleIntervals = mutableListOf(
-        Interval(0, 4, 30),
-        Interval(4, 12, 60),
-        Interval(12, Int.MAX_VALUE, 100)
+        Interval(0, 1, 0),
+        Interval(1, 8, 40),
+        Interval(8, 24, 60),
     )
 
     private val carIntervals = mutableListOf(
-        Interval(0, 4, 60),
-        Interval(4, 12, 120),
-        Interval(12, Int.MAX_VALUE, 200)
+        Interval(0, 12, 60),
+        Interval(12, 24, 80),
     )
 
     private val feeStructure = mutableMapOf(
@@ -33,30 +33,35 @@ class StadiumFeeModel : FeeModel{
         VehicleType.CAR to carIntervals
     )
 
+    private val perDayFeeStructure = mutableMapOf(
+        VehicleType.MOTORCYCLE to 80,
+        VehicleType.CAR to 100
+    )
+
     private fun findFeesIntervalAsPerBatch(hours: Long, vehicleType: VehicleType): BigDecimal {
-        println(hours)
-        var amount = BigDecimal(0)
-        for(interval in feeStructure[vehicleType]!!){
-            if(hours > interval.startHours) amount += BigDecimal(interval.fee)
+
+        var days = hours / 24
+
+        val remainHours = hours - (days * 24)
+
+        if(remainHours > 0) days++
+
+        if(hours > 24) return BigDecimal((days) * perDayFeeStructure[vehicleType]!!)
+
+        for (interval in feeStructure[vehicleType]!!){
+            if(hours < interval.endHours){
+                return BigDecimal(interval.fee)
+            }
         }
-        if (hours > 12)
-            amount += BigDecimal((hours - 13) * feeStructure[vehicleType]?.last()!!.fee )
-        return amount
+
+        return BigDecimal.ZERO
+
     }
 
     override fun calculateFee(entryTime: Date, exitTime: Date, vehicleType: VehicleType): BigDecimal {
         val minutes = findTimeDifference(entryTime, exitTime)
-        var hours = minutes / 60
-        val remainMinutes = minutes - (hours * 60)
-        if(remainMinutes > 0) hours++
+        val hours = minutes / 60
         return findFeesIntervalAsPerBatch(hours, vehicleType)
     }
 
 }
-//
-//class AirportFeeModel : FeeModel{
-//    override fun calculateFee(): Int {
-//        TODO("Not yet implemented")
-//    }
-//
-//}
