@@ -33,18 +33,23 @@ class StadiumFeeModel : FeeModel{
         VehicleType.CAR to carIntervals
     )
 
-    private fun findFeesIntervalAsPerBatch(hours: Long, vehicleType: VehicleType): Int {
+    private fun findFeesIntervalAsPerBatch(hours: Long, vehicleType: VehicleType): BigDecimal {
+        println(hours)
+        var amount = BigDecimal(0)
         for(interval in feeStructure[vehicleType]!!){
-            if(hours < interval.endHours) return interval.fee
+            if(hours > interval.startHours) amount += BigDecimal(interval.fee)
         }
-        return 0
+        if (hours > 12)
+            amount += BigDecimal((hours - 13) * feeStructure[vehicleType]?.last()!!.fee )
+        return amount
     }
 
     override fun calculateFee(entryTime: Date, exitTime: Date, vehicleType: VehicleType): BigDecimal {
         val minutes = findTimeDifference(entryTime, exitTime)
-        val hours = minutes / 60
+        var hours = minutes / 60
         val remainMinutes = minutes - (hours * 60)
-        return BigDecimal(hours * findFeesIntervalAsPerBatch(hours, vehicleType))
+        if(remainMinutes > 0) hours++
+        return findFeesIntervalAsPerBatch(hours, vehicleType)
     }
 
 }
